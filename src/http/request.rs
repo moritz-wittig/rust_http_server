@@ -1,10 +1,10 @@
 use crate::http::request;
 
-use super::method::Method;
+use super::method::{Method, MethodError};
 use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt::{Display, Result as FmtResult, Formatter, Debug};
-use std::str;
+use std::str::{self, Utf8Error};
 
 pub struct Request {
     path: String,
@@ -26,6 +26,8 @@ impl TryFrom<&[u8]> for Request {
         if protocol != "HTTP/1.1" {
             return Err(ParseError::InvalidProtocol)
         }
+
+        let method: Method = method.parse()?;
         unimplemented!()
     }
 }
@@ -38,20 +40,6 @@ fn get_next_word(request: &str) -> Option<(&str, &str)>{
         }
     }
     None
-}
-
-impl Display for ParseError{
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        // write message with the Formatter
-        write!(f, "{}", self.message())
-    }
-}
-
-impl Debug for ParseError{
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        // write message with the Formatter
-        write!(f, "{}", self.message())
-    }
 }
 
 pub enum ParseError {
@@ -72,7 +60,28 @@ impl ParseError {
     }
 }
 
-impl Error for ParseError {
-    
+impl From<MethodError> for ParseError {
+    fn from(_: MethodError) -> Self {
+        Self::InvalidMethod
+    }
 }
 
+impl From<Utf8Error> for ParseError {
+    fn from(_: Utf8Error) -> Self {
+        Self::InvalidEncoding
+    }
+}
+
+impl Display for ParseError{
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        // write message with the Formatter
+        write!(f, "{}", self.message())
+    }
+}
+
+impl Debug for ParseError{
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        // write message with the Formatter
+        write!(f, "{}", self.message())
+    }
+}
