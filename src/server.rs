@@ -1,6 +1,6 @@
 use crate::http::Request;
-use std::net::TcpListener;
 use std::io::Read;
+use std::net::TcpListener;
 
 pub struct Server {
     adress: String,
@@ -8,15 +8,13 @@ pub struct Server {
 
 impl Server {
     pub fn new(adress: String) -> Self {
-        Self {
-            adress
-        }
+        Self { adress }
     }
 
-    pub fn run(self){
+    pub fn run(self) {
         println!("Listening on {}", self.adress);
         let listener = TcpListener::bind(self.adress).unwrap();
-        loop{
+        loop {
             match listener.accept() {
                 Ok((mut stream, _)) => {
                     let mut buffer = [0; 1024]; // 1KB of memory allocated
@@ -25,7 +23,7 @@ impl Server {
                             println!("Received a request: {}", String::from_utf8_lossy(&buffer));
 
                             match Request::try_from(&buffer[..]) {
-                                Ok(request) => {},
+                                Ok(request) => {}
                                 Err(e) => {
                                     println!("Failed to parse a request: {}", e)
                                 }
@@ -42,7 +40,7 @@ impl Server {
             }
 
             let res = listener.accept();
-            if res.is_err(){
+            if res.is_err() {
                 continue;
             }
             let (stream, addr) = res.unwrap();
