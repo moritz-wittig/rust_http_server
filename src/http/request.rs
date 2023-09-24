@@ -5,19 +5,19 @@ use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::str::{self, Utf8Error};
-
+use super::QueryString;
 pub struct Request<'buf> {
     path: &'buf str,
-    query_str: Option<&'buf str>,
+    query_string: Option<QueryString<'buf>>,
     method: Method,
 }
 
 // 'buf indicates the lifetime
-impl<'buf> TryFrom<&[u8]> for Request<'buf> {
+impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
     type Error = ParseError;
 
     // Only supports HTTP 1.1
-    fn try_from(buf: &[u8]) -> Result<Request<'buf>, Self::Error> {
+    fn try_from(buf: &'buf [u8]) -> Result<Request<'buf>, Self::Error> {
         let request = str::from_utf8(buf).or(Err(ParseError::InvalidEncoding))?;
 
         let (method, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
@@ -35,11 +35,15 @@ impl<'buf> TryFrom<&[u8]> for Request<'buf> {
         // If let expression: only if we find a '?' in the path,
         // execute the following
         if let Some(i) = path.find("?") {
-            query_string = Some(&path[i + 1..]);
+            query_string = Some(QueryString::from(&path[i + 1..]));
             path = &path[..i];
         }
 
-        unimplemented!()
+        Ok(Self { 
+            path, 
+            query_string, 
+            method 
+        })
     }
 }
 
