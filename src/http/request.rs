@@ -6,21 +6,22 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::str::{self, Utf8Error};
 
-pub struct Request {
-    path: String,
-    query_str: Option<String>,
+pub struct Request<'buf> {
+    path: &'buf str,
+    query_str: Option<&'buf str>,
     method: Method,
 }
 
-impl TryFrom<&[u8]> for Request {
+// 'buf indicates the lifetime
+impl<'buf> TryFrom<&[u8]> for Request<'buf> {
     type Error = ParseError;
 
     // Only supports HTTP 1.1
-    fn try_from(buf: &[u8]) -> Result<Self, Self::Error> {
+    fn try_from(buf: &[u8]) -> Result<Request<'buf>, Self::Error> {
         let request = str::from_utf8(buf).or(Err(ParseError::InvalidEncoding))?;
 
         let (method, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
-        let (path, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
+        let (mut path, request) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
         let (protocol, _) = get_next_word(request).ok_or(ParseError::InvalidRequest)?;
 
         if protocol != "HTTP/1.1" {
@@ -28,6 +29,16 @@ impl TryFrom<&[u8]> for Request {
         }
 
         let method: Method = method.parse()?;
+
+        let mut query_string = None;
+
+        // If let expression: only if we find a '?' in the path,
+        // execute the following
+        if let Some(i) = path.find("?") {
+            query_string = Some(&path[i + 1..]);
+            path = &path[..i];
+        }
+
         unimplemented!()
     }
 }
