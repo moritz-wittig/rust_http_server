@@ -1,11 +1,10 @@
-use crate::http::request;
-
 use super::method::{Method, MethodError};
 use super::QueryString;
 use std::convert::TryFrom;
-use std::error::Error;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::str::{self, Utf8Error};
+
+#[derive(Debug)]
 pub struct Request<'buf> {
     path: &'buf str,
     query_string: Option<QueryString<'buf>>,
@@ -32,7 +31,7 @@ impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
 
         let mut query_string = None;
 
-        // If let expression: only if we find a '?' in the path,
+        // If let expres on: only if we find a '?' in the path,
         // execute the following
         if let Some(i) = path.find("?") {
             query_string = Some(QueryString::from(&path[i + 1..]));

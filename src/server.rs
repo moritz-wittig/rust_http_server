@@ -23,11 +23,14 @@ impl Server {
                             println!("Received a request: {}", String::from_utf8_lossy(&buffer));
 
                             match Request::try_from(&buffer[..]) {
-                                Ok(request) => {}
+                                Ok(request) => {
+                                    dbg!(request);
+                                }
                                 Err(e) => {
                                     println!("Failed to parse a request: {}", e)
                                 }
-                            }
+                            };
+
                         }
                         Err(e) => {
                             println!("Failed to read from connection: {e}")
@@ -43,7 +46,7 @@ impl Server {
             if res.is_err() {
                 continue;
             }
-            let (stream, addr) = res.unwrap();
+            let (_stream, _addr) = res.unwrap();
         }
     }
 }
