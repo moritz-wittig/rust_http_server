@@ -30,7 +30,6 @@ impl Server {
                                     println!("Failed to parse a request: {}", e)
                                 }
                             };
-
                         }
                         Err(e) => {
                             println!("Failed to read from connection: {e}")
