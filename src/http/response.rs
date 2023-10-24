@@ -1,5 +1,8 @@
-use std::{fmt::{Display, Formatter, Result as FmtResult}, net::TcpStream};
-use std::io::{Write, Result as IoResult};
+use std::io::{Result as IoResult, Write};
+use std::{
+    fmt::{Display, Formatter, Result as FmtResult},
+    net::TcpStream,
+};
 
 use super::StatusCode;
 
@@ -14,18 +17,17 @@ impl Response {
         Response { status_code, body }
     }
 
-    pub fn send(&self, stream:&mut TcpStream) -> IoResult<()>{
-        let body = match &self.body{
+    pub fn send(&self, stream: &mut TcpStream) -> IoResult<()> {
+        let body = match &self.body {
             Some(b) => b,
             None => "",
         };
         write!(
-            stream, 
-            "HTTP/1.1 {} {}\r\n\r\n{}", 
-            self.status_code, 
+            stream,
+            "HTTP/1.1 {} {}\r\n\r\n{}",
+            self.status_code,
             self.status_code.reason_phrase(),
             body
         )
     }
-
 }

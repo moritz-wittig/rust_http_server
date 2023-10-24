@@ -1,13 +1,13 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
 #[derive(Clone, Copy, Debug)]
-pub enum StatusCode{
-    Ok = 200, 
+pub enum StatusCode {
+    Ok = 200,
     BadRequest = 400,
     NotFound = 404,
 }
 
-impl StatusCode{
+impl StatusCode {
     pub fn reason_phrase(&self) -> &str {
         match self {
             Self::Ok => "Ok",
