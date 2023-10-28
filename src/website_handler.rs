@@ -25,8 +25,6 @@ impl WebsiteHandler{
             }
             Err(_) => return None,
         }
-
-        fs::read_to_string(path).ok()
     }
 }
 impl Handler for WebsiteHandler {
